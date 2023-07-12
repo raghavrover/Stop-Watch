@@ -4,35 +4,47 @@ import './index.css'
 class StopWatch extends Component {
   constructor(props) {
     super(props)
-    this.state = {timer: '00:00'}
+    this.state = {timer: '00:00', isTimerRunning: false, uniqueId: undefined}
   }
 
   onStart = () => {
-    const {timer} = this.state
-
-    let minutes = parseInt(timer.slice(0, 2))
-    let seconds = parseInt(timer.slice(3, 6))
-    this.intervalId = setInterval(() => {
-      seconds += 1
-      const minFormat = minutes < 10 ? `0${minutes}` : minutes
-      const secFormat = seconds < 10 ? `0${seconds}` : seconds
-      if (seconds === 59) {
-        minutes += 1
-        seconds = -1
-      }
-      this.setState({timer: `${minFormat}:${secFormat}`})
-    }, 1000)
+    const {timer, isTimerRunning} = this.state
+    if (isTimerRunning === false) {
+      let minutes = parseInt(timer.slice(0, 2))
+      let seconds = parseInt(timer.slice(3, 6))
+      const intervalId = setInterval(() => {
+        seconds += 1
+        const minFormat = minutes < 10 ? `0${minutes}` : minutes
+        const secFormat = seconds < 10 ? `0${seconds}` : seconds
+        if (seconds === 59) {
+          minutes += 1
+          seconds = -1
+        }
+        this.setState({
+          timer: `${minFormat}:${secFormat}`,
+          isTimerRunning: true,
+        })
+      }, 1000)
+      this.setState({uniqueId: intervalId})
+    }
   }
 
   onStop = () => {
-    clearInterval(this.intervalId)
+    const {uniqueId} = this.state
+    this.setState({isTimerRunning: false}, clearInterval(uniqueId))
   }
 
   onReset = () => {
-    this.setState({
-      timer: '00:00',
-    })
-    clearInterval(this.intervalId)
+    const {uniqueId} = this.state
+
+    this.setState(
+      {
+        timer: '00:00',
+        isTimerRunning: false,
+        uniqueId: undefined,
+      },
+      clearInterval(uniqueId),
+    )
   }
 
   render() {
